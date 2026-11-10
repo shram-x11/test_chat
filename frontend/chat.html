@@ -1,0 +1,52 @@
+<main class="page">
+    <header class="page-header">
+        <h1>Онлайн-чат</h1>
+        <span v-if="joined" class="status" :class="{ connected }" role="status">
+            {{ connected ? 'В сети' : 'Подключение…' }}
+        </span>
+    </header>
+
+    <section v-if="!joined" class="login panel" aria-labelledby="login-title">
+        <h2 id="login-title">Войти в чат</h2>
+        <form @submit.prevent="join">
+            <label for="name">Ваше имя</label>
+            <input id="name" v-model="name" placeholder="Например, Юзер 1" autocomplete="nickname" required autofocus>
+            <p v-if="error" class="error" role="alert">{{ error }}</p>
+            <button type="submit" :disabled="joining">{{ joining ? 'Входим…' : 'Войти' }}</button>
+        </form>
+    </section>
+
+    <div v-else class="room">
+        <section class="conversation panel" aria-labelledby="messages-title">
+            <h2 id="messages-title">Сообщения</h2>
+            <div ref="log" class="log" role="log" aria-label="История сообщений" tabindex="0">
+                <p v-if="!messages.length" class="empty">Загружаем сообщения…</p>
+                <ol v-else>
+                    <li v-for="message in messages" :key="message.id" :class="{ system: message.type !== 'message' }">
+                        <time :datetime="message.datetime">{{ message.time }}</time>
+                        <div class="message">
+                            <template v-if="message.type === 'message'"><strong>{{ message.name }}:</strong> {{ message.text }}</template>
+                            <template v-else>{{ message.name }} {{ message.type === 'join' ? 'вошёл в чат' : 'покинул чат' }}</template>
+                        </div>
+                    </li>
+                </ol>
+            </div>
+            <div class="composer">
+                <p v-if="connectionError" class="error" role="status">{{ connectionError }}</p>
+                <p v-if="error" class="error" role="alert">{{ error }}</p>
+                <form @submit.prevent="send">
+                    <label class="visually-hidden" for="message">Сообщение</label>
+                    <input id="message" v-model="draft" placeholder="Напишите сообщение" autocomplete="off" required>
+                    <button type="submit" :disabled="sending || !connected || !draft.trim()">Отправить</button>
+                </form>
+            </div>
+        </section>
+
+        <aside class="people panel" aria-labelledby="users-title">
+            <h2 id="users-title">Пользователи онлайн <span class="count">{{ users.length }}</span></h2>
+            <ul aria-label="Пользователи онлайн">
+                <li v-for="(user, index) in users" :key="index">{{ user }}</li>
+            </ul>
+        </aside>
+    </div>
+</main>

@@ -1,0 +1,8 @@
+{
+  "name": "simple-chat",
+  "private": true,
+  "devDependencies": {
+    "vue": "2.7.16",
+    "vue-template-compiler": "2.7.16"
+  }
+}

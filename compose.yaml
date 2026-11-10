@@ -1,0 +1,23 @@
+services:
+  chat:
+    build: .
+    ports:
+      - "127.0.0.1:${CHAT_PORT:-8080}:80"
+    environment:
+      REDIS_HOST: redis
+    depends_on:
+      redis:
+        condition: service_healthy
+  redis:
+    image: redis:8.10.3-alpine
+    command: ["redis-server", "--appendonly", "yes", "--save", ""]
+    volumes:
+      - chat-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 2s
+      timeout: 1s
+      retries: 15
+
+volumes:
+  chat-data:
